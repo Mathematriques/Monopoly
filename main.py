@@ -129,47 +129,50 @@ class Board:
 		for t in self.tiles:
 			t.group = groups[type(t)]
 
+	def turn_of(self, player):
+		dice1, dice2 = random.randint(1, 7, 2)
+
+		if player.position == Tile.PRISON:
+			stay = player.in_prison_and_stay(dice1, dice2, board)
+			if stay:
+				return
+		elif player.too_many_doubles(dice1, dice2):
+			player.go_to_prison()
+			return
+
+		player.displayer(player)
+		player.move_from_dice(dice1, dice2)
+
+		while True:  # Loop until player settles down on a tile
+			tile = board.tiles[player.position]
+			tile.displayer()
+			double = False
+
+			if isinstance(tile, Prison):
+				player.go_to_prison()
+				return
+			elif isinstance(tile, Tax):
+				tile.tax_from(player)
+			elif isinstance(tile, Chance) or isinstance(tile, Caisse):
+				prison, moved, double = tile.action(player, players)
+				if prison:
+					return  # already sent to prison
+				if moved:
+					continue
+			break
+
+		if isinstance(tile, Purchasable):
+			if tile.owner:
+				tile.rent_from(player, double, dice1, dice2)
+			elif player.buy_will(tile) and player.money >= tile.price:
+				player.buy(tile)
+
+		print("Add constructions")
+
 
 players = [Player(PlayerDebugDisplayer("Toto")), Player(PlayerDebugDisplayer("Tata"))]
 board = Board(players)
 
 for _ in range(100):
 	player = next(board.players)
-	dice1, dice2 = random.randint(1, 7, 2)
-
-	# Special cases
-	if player.position == Tile.PRISON:
-		stay = player.in_prison_and_stay(dice1, dice2, board)
-		if stay:
-			continue
-	elif player.too_many_doubles(dice1, dice2):
-		player.go_to_prison()
-		continue
-
-	# Normal move
-	player.displayer(player)
-	player.move_from_dice(dice1, dice2)
-	tile = board.tiles[player.position]
-	tile.displayer()
-
-	double = False
-
-	if isinstance(tile, Prison):
-		player.go_to_prison()
-		continue
-	elif isinstance(tile, Tax):
-		tile.tax_from(player)
-	elif isinstance(tile, Chance) or isinstance(tile, Caisse):
-		prison, moved, double = tile.action(player, players)
-		if prison:
-			continue  # already sent to prison
-		if moved:
-			tile = board.tiles[player.position]
-			tile.displayer()
-	if isinstance(tile, Purchasable):
-		if tile.owner:
-			tile.rent_from(player, double, dice1, dice2)
-		elif player.buy_will(tile) and player.money >= tile.price:
-			player.buy(tile)
-
-	print("Add constructions")
+	board.turn_of(player)
