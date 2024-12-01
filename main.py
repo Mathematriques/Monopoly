@@ -51,27 +51,23 @@ class PlayerDebugDisplayer:
 
 class TileDebugDisplayer:
 	def __init__(self, name, colour):
-		self.name = name
-		self.colour = colour
-
-	def __call__(self):
-		print(f"\tSur la case {self.colour}{self.name}{colours.reset}")
+		self.name = f"{colour}{name}{colours.reset}"
 
 
 class ChanceDebugDisplayer:
-	def __call__(self):
-		print(f"\tSur la case {colours.bg.red}Chance{colours.reset}")
+	def __init__(self):
+		self.name = f"{colours.bg.red}Chance{colours.reset}"
 
 	def effect(self, description):
-		print(f"\t\t{colours.bold}{description}{colours.reset}")
+		print(f"\t{self.name} : {colours.bold}{description}{colours.reset}")
 
 
 class CaisseDebugDisplayer:
-	def __call__(self):
-		print(f"\tSur la case {colours.bg.blue}Caisse{colours.reset}")
+	def __init__(self):
+		self.name = f"{colours.bg.blue}Caisse{colours.reset}"
 
 	def effect(self, description):
-		print(f"\t\t{colours.bold}{description}{colours.reset}")
+		print(f"\t{self.name} : {colours.bold}{description}{colours.reset}")
 
 
 class Board:
@@ -148,14 +144,15 @@ class Board:
 
 		while True:  # Loop until player settles down on a tile
 			tile = board.tiles[player.position]
-			tile.displayer()
 			double = False
 
 			if isinstance(tile, Prison):
 				player.go_to_prison()
 				return
+
 			elif isinstance(tile, Tax):
 				tile.tax_from(player)
+
 			elif isinstance(tile, Chance) or isinstance(tile, Caisse):
 				prison, moved, double = tile.action(player, players)
 				if prison:
@@ -167,7 +164,7 @@ class Board:
 		if isinstance(tile, Purchasable):
 			player.pay_rent_or_try_to_buy(tile, double, dice1, dice2)
 
-		print("Add constructions")
+		# print("Add constructions")
 
 
 players = [Player(PlayerDebugDisplayer("Toto")), Player(PlayerDebugDisplayer("Tata"))]
