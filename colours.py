@@ -3,10 +3,13 @@ class colours(object):
     reset = "\033[0m"
     bold = "\033[01m"
     disable = "\033[02m"
+    italic = "\033[03m"
     underline = "\033[04m"
+    clignot = "\033[05m"
     reverse = "\033[07m"
-    strikethrough = "\033[09m"
     invisible = "\033[08m"
+    strikethrough = "\033[09m"
+    underdouble = "\033[21m"
 
     class fg:
         black = "\033[30m"
