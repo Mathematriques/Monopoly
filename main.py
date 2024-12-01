@@ -42,6 +42,9 @@ class PlayerDebugDisplayer:
 	def double_to_get_out_of_prison(self):
 		print(f"{self.name} fait un double et sort")
 
+	def pay_rent(self, owner_displayer, purchasable_displayer):
+		print(f"{self.name} est sur {purchasable_displayer.name} qui appartient à {owner_displayer.name}")
+
 	def buy(self, purchasable_displayer):
 		print(f"{self.name} achète {purchasable_displayer.name}")
 
@@ -162,10 +165,7 @@ class Board:
 			break
 
 		if isinstance(tile, Purchasable):
-			if tile.owner:
-				tile.rent_from(player, double, dice1, dice2)
-			elif player.buy_will(tile) and player.money >= tile.price:
-				player.buy(tile)
+			player.pay_rent_or_try_to_buy(tile, double, dice1, dice2)
 
 		print("Add constructions")
 

@@ -83,6 +83,12 @@ class Player:
 		self.position = Tile.PRISON
 		self.turns_in_prison = 0
 
+	def pay_rent(self, purchasable, double, dice1, dice2):
+		self.displayer.pay_rent(purchasable.owner.displayer, purchasable.displayer)
+		rent = purchasable.compute_rent(double, dice1, dice2)
+		payed = self.lose(rent)
+		purchasable.owner.win(payed)
+
 	def buy(self, purchasable):
 		self.displayer.buy(purchasable.displayer)
 		self.lose(purchasable.price)
@@ -129,3 +135,9 @@ class Player:
 
 		self.leave_prison()
 		return False
+
+	def pay_rent_or_try_to_buy(self, purchasable, double, dice1, dice2):
+		if purchasable.owner:
+			self.pay_rent(purchasable, double, dice1, dice2)
+		elif self.buy_will(purchasable) and self.money >= purchasable.price:
+			self.buy(purchasable)

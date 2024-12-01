@@ -57,11 +57,6 @@ class Purchasable(Tile):
 		self.price = price
 		self.owner = None
 
-	def rent_from(self, player, double, dice1, dice2):
-		rent = self.compute_rent(double, dice1, dice2)
-		payed = player.lose(rent)
-		self.owner.win(payed)
-
 
 class Station(Purchasable):
 	def __init__(self, displayer):
