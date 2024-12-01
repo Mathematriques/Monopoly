@@ -154,11 +154,10 @@ for _ in range(100):
 	elif isinstance(tile, Tax):
 		tile.tax_from(player)
 	elif isinstance(tile, Chance) or isinstance(tile, Caisse):
-		moved, double = tile.action(player, players)
+		prison, moved, double = tile.action(player, players)
+		if prison:
+			continue  # already sent to prison
 		if moved:
-			if player.position == Tile.PRISON:
-				player.go_to_prison()
-				continue
 			tile = board.tiles[player.position]
 			tile.displayer()
 	if isinstance(tile, Purchasable):

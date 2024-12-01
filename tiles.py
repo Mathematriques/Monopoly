@@ -170,17 +170,17 @@ class Chance(Tile):
 		if card == Chance.SORTIE_DE_PRISON:
 			self.displayer.effect("Vous êtes libéré de prison.")
 			player.chance_out = True  # ajoute à la main du player
-			return False, False  # not moved, not doubling
+			return False, False, False  # not prison, not moved, not doubling
 
 		self.deck.append(card)  # repose la card dans le deck
 		if card == Chance.AVANCEZ_DEPART:
 			self.displayer.effect("Avancez jusqu'à la case départ")
 			player.move_to(Tile.DEPART)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.ALLEZ_EN_PRISON:
 			self.displayer.effect("Allez en prison !")
-			player.move_to(Tile.PRISON)
-			return True, False  # moved, not doubling
+			player.go_to_prison()
+			return True, True, False  # prison, not moved, not doubling
 		elif card == Chance.DIVIDENDE:
 			self.displayer.effect("Recevez 50€ de dividendes")
 			player.win(50)
@@ -200,32 +200,32 @@ class Chance(Tile):
 		elif card == Chance.RUE_DE_LA_PAIX:
 			self.displayer.effect("Avancez rue de la Paix")
 			player.move_to(Tile.RUE_DE_LA_PAIX)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.AVANCEZ_BOULEVARD_DE_LA_VILLETTE:
 			self.displayer.effect("Avancez Boulevard de la Villette")
 			player.move_to(Tile.BOULEVARD_DE_LA_VILLETTE)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.RENDEZ_VOUS_AVENUE_HENRI_MARTIN:
 			self.displayer.effect("Rendez vous avenue Henri-Martin")
 			player.move_to(Tile.AVENUE_HENRI_MARTIN)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.ALLEZ_GARE_MONTPARNASSE:
 			self.displayer.effect("Avancez jusqu'à la gare Montparnasse")
 			player.move_to(Tile.GARE_MONTPARNASSE)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.RECULEZ_DE_TROIS_CASES:
 			self.displayer.effect("Reculez de 3 cases")
 			player.move_to((player.position - 3) % Tile.TOTAL, step=-1)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card in Chance.GARE_PLUS_PROCHE:
 			self.displayer.effect("Allez à la gare la plus proche. Payer le loyer double")
 			player.move_to(Tile.closest_station(player.position))
-			return True, True  # doubling, moved
+			return False, True, True  # doubling, moved
 		elif card == Chance.COMPAGNIE_PLUS_PROCHE:
 			self.displayer.effect("Allez à la compagnie la plus proche. Payer le loyer double")
 			player.move_to(Tile.closest_company(player.position))
-			return True, True  # doubling, moved
-		return False, False  # not moved, not doubling
+			return False, True, True  # doubling, moved
+		return False, False, False  # not prison, not moved, not doubling
 
 
 class Caisse(Tile):
@@ -262,17 +262,17 @@ class Caisse(Tile):
 		if card == Caisse.SORTIE_DE_PRISON:
 			self.displayer.effect("Vous êtes libéré de prison.")
 			player.caisse_out = True  # ajoute à la main du player
-			return False, False  # not moved, not doubling
+			return False, False, False  # not prison, not moved, not doubling
 
 		self.deck.append(card)  # repose la card dans le deck
 		if card == Caisse.AVANCEZ_DEPART:
 			self.displayer.effect("Avancez jusqu'à la case départ")
 			player.move_to(Tile.DEPART)
-			return True, False  # moved, not doubling
+			return False, True, False  # not prison, moved, not doubling
 		elif card == Caisse.ALLEZ_EN_PRISON:
 			self.displayer.effect("Allez en prison !")
-			player.move_to(Tile.PRISON)
-			return True, False  # moved, not doubling
+			player.go_to_prison()
+			return True, True, False  # prison, not moved, not doubling
 		elif card == Caisse.ASSURANCE_VIE:
 			self.displayer.effect("Votre assurance vie vous rapporte 100€")
 			player.win(100)
@@ -313,4 +313,4 @@ class Caisse(Tile):
 		elif card == Caisse.TRAVAUX:
 			self.displayer.effect("Travaux : payez 40€ par maison et 115€ par hôtel")
 			player.tax_construction(40, 115)
-		return False, False  # not moved, not doubling
+		return False, False, False  # not prison, not moved, not doubling
