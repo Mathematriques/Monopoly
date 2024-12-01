@@ -30,14 +30,20 @@ class PlayerDebugDisplayer:
 	def step(self):
 		print(f"{self.name} avance d'une case")
 
+	def too_many_doubles(self):
+		print(f"\t{self.name} à fait 3 doubles de suite")
+
 	def go_to_prison(self):
 		print(f"{colours.bg.red}{colours.fg.black}{self.name} va en Prison !{colours.reset}")
 
 	def leave_prison(self):
 		print(f"{colours.bg.green}{colours.fg.black}{self.name} sort de Prison !{colours.reset}")
 
-	def in_prison(self):
-		print(f"Tour de {self.name} qui a {colours.fg.yellow}{player.money}€{colours.reset} est en Prison")
+	def double_to_get_out_of_prison(self):
+		print(f"{self.name} fait un double et sort")
+
+	def buy(self, purchasable_displayer):
+		print(f"{self.name} achète {purchasable_displayer.name}")
 
 
 class TileDebugDisplayer:
