@@ -14,18 +14,16 @@ class Player:
 		self.caisse_out = False
 		self.wallet = defaultdict(set)
 
-	# Subclassing
 	def prison_will(self):
 		return False, False, False
 
-	# Subclassing
-	def veut_acheter(self, purchasable):
+	def buy_will(self, purchasable):
 		return True
 
-	# Subclassing
-	def vent_construire(self, groups):
-		for _ in range(5):
-			pass
+	def construction_will(self, groups):
+		pass
+
+	#############################################################
 
 	def lose(self, amount):
 		self.money -= amount
@@ -38,10 +36,7 @@ class Player:
 		self.displayer.win(amount)
 
 	def pay(self, other, amount):
-		other.money += amount
-		self.money -= amount
-		self.displayer.pay(other, amount)
-		print("\tAdd player end + real amount payed")
+		other.win(self.lose(amount))
 
 	def too_many_doubles(self, dice1, dice2):
 		double = dice1 == dice2

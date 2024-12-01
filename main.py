@@ -19,23 +19,22 @@ class PlayerDebugDisplayer:
 			print(f"\t{group.__name__} : {", ".join(t.displayer.name for t in player.wallet[group])}")
 
 	def lose(self, amount):
-		print(f"\t\t{self.name} donne {colours.fg.yellow}{amount}€{colours.reset}")
+		print(f"\t{self.name} perd {colours.fg.yellow}{amount}€{colours.reset}")
 
 	def win(self, amount):
-		print(f"\t\t{self.name} reçoit {colours.fg.yellow}{amount}€{colours.reset}")
+		print(f"\t{self.name} reçoit {colours.fg.yellow}{amount}€{colours.reset}")
 
-	def pay(self, other, amount):
-		print(f"\t\t{self.name} −−{colours.fg.yellow}{amount}€{colours.reset}−−> {other.displayer.name}")
+	def pay(self, other_displayer, amount):
+		print(f"\t{self.name} −−{colours.fg.yellow}{amount}€{colours.reset}−−> {other_displayer.name}")
 
 	def step(self):
-		return
 		print(f"{self.name} avance d'une case")
 
 	def go_to_prison(self):
 		print(f"{colours.bg.red}{colours.fg.black}{self.name} va en Prison !{colours.reset}")
 
 	def leave_prison(self):
-		print(f"{colours.bg.green}{colours.fg.black}{self.name} Sort de Prison !{colours.reset}")
+		print(f"{colours.bg.green}{colours.fg.black}{self.name} sort de Prison !{colours.reset}")
 
 	def in_prison(self):
 		print(f"Tour de {self.name} qui a {colours.fg.yellow}{player.money}€{colours.reset} est en Prison")
@@ -73,19 +72,19 @@ class Board:
 		self.caisse_deck = Caisse.make_deck()
 		self.tiles = [
 			# fmt: on
-			Tile(TileDebugDisplayer("Départ", colours.bold)),
+			Tile(TileDebugDisplayer("Départ", colours.italic)),
 			Brown(60, 50, (2, 10, 30, 90, 160, 250), TileDebugDisplayer("Boulevard de Belleville", colours.fg.brown)),
 			Caisse(self.caisse_deck, CaisseDebugDisplayer()),
 			Brown(60, 50, (4, 20, 60, 180, 320, 450), TileDebugDisplayer("Rue Lecourbe", colours.fg.brown)),
-			Tax(200, TileDebugDisplayer("Impôt sur le revenu", colours.bold)),
+			Tax(200, TileDebugDisplayer("Impôt sur le revenu", colours.italic)),
 			Station(TileDebugDisplayer("Gare Montparnasse", colours.fg.darkgrey)),
 			Grey(100, 50, (6, 30, 90, 270, 400, 550), TileDebugDisplayer("Rue Vaugirard", colours.fg.lightgrey)),
 			Chance(self.chance_deck, ChanceDebugDisplayer()),
 			Grey(100, 50, (6, 30, 90, 270, 400, 550), TileDebugDisplayer("Rue de Courcelles", colours.fg.lightgrey)),
 			Grey(120, 50, (8, 40, 100, 300, 450, 600), TileDebugDisplayer("Avenue de la République", colours.fg.lightgrey)),
-			Tile(TileDebugDisplayer("Simple Visite", colours.bold)),
+			Tile(TileDebugDisplayer("Simple Visite", colours.italic)),
 			Pink(140, 100, (10, 50, 150, 450, 625, 750), TileDebugDisplayer("Boulevard de la Villette", colours.fg.pink)),
-			Company(TileDebugDisplayer("Service de distribution d'éléctricité", colours.bold)),
+			Company(TileDebugDisplayer("Service de distribution d'éléctricité", colours.italic)),
 			Pink(140, 100, (10, 50, 150, 450, 625, 750), TileDebugDisplayer("Avenue de Neuilly", colours.fg.pink)),
 			Pink(160, 100, (12, 60, 180, 500, 700, 900), TileDebugDisplayer("Rue de Paradis", colours.fg.pink)),
 			Station(TileDebugDisplayer("Gare de Lyon", colours.fg.darkgrey)),
@@ -93,7 +92,7 @@ class Board:
 			Caisse(self.caisse_deck, CaisseDebugDisplayer()),
 			Orange(180, 100, (14, 70, 200, 550, 750, 950), TileDebugDisplayer("Boulevard Saint-Michel", colours.fg.brown)),
 			Orange(200, 100, (16, 80, 220, 600, 800, 1000), TileDebugDisplayer("Place Pigalle", colours.fg.brown)),
-			Tile(TileDebugDisplayer("Parc gratuit", colours.bold)),
+			Tile(TileDebugDisplayer("Parc gratuit", colours.italic)),
 			Red(220, 150, (18, 90, 250, 700, 875, 1050), TileDebugDisplayer("Avenue Matignon", colours.fg.red)),
 			Chance(self.chance_deck, ChanceDebugDisplayer()),
 			Red(220, 150, (18, 90, 250, 700, 875, 1050), TileDebugDisplayer("Boulevard Malesherbes", colours.fg.red)),
@@ -101,9 +100,9 @@ class Board:
 			Station(TileDebugDisplayer("Gare du Nord", colours.fg.darkgrey)),
 			Yellow(260, 150, (22, 110, 330, 800, 975, 1150), TileDebugDisplayer("Faubourg Saint-Honoré", colours.fg.yellow)),
 			Yellow(260, 150, (22, 110, 330, 800, 975, 1150), TileDebugDisplayer("Place de la bourse", colours.fg.yellow)),
-			Company(TileDebugDisplayer("Service de distribution des eaux", colours.bold)),
+			Company(TileDebugDisplayer("Service de distribution des eaux", colours.italic)),
 			Yellow(280, 150, (24, 120, 360, 850, 1025, 1200), TileDebugDisplayer("Rue la Fayette", colours.fg.yellow)),
-			Prison(TileDebugDisplayer("Prison", colours.bold)),
+			Prison(TileDebugDisplayer("Prison", colours.italic)),
 			Green(300, 200, (26, 130, 390, 900, 1100, 1275), TileDebugDisplayer("Avenue de Breteuil", colours.fg.green)),
 			Green(300, 200, (26, 130, 390, 900, 1100, 1275), TileDebugDisplayer("Avenue Foch", colours.fg.green)),
 			Caisse(self.caisse_deck, CaisseDebugDisplayer()),
@@ -111,7 +110,7 @@ class Board:
 			Station(TileDebugDisplayer("Gare Saint-Lazare", colours.fg.darkgrey)),
 			Chance(self.chance_deck, ChanceDebugDisplayer()),
 			Blue(350, 200, (35, 175, 500, 1100, 1300, 1500), TileDebugDisplayer("Avenue des Champs-Élysées", colours.fg.blue)),
-			Tax(100, TileDebugDisplayer("Taxe de Luxe", colours.bold)),
+			Tax(100, TileDebugDisplayer("Taxe de Luxe", colours.italic)),
 			Blue(400, 200, (50, 200, 600, 1400, 1700, 2000), TileDebugDisplayer("Rue de la paix", colours.fg.blue)),
 			# fmt: on
 		]
@@ -165,7 +164,7 @@ for _ in range(100):
 	if isinstance(tile, Purchasable):
 		if tile.owner:
 			tile.rent_from(player, double, dice1, dice2)
-		elif player.veut_acheter(tile) and player.money >= tile.price:
+		elif player.buy_will(tile) and player.money >= tile.price:
 			player.buy(tile)
 
 	print("Add constructions")
