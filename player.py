@@ -1,11 +1,9 @@
 from tiles import *
-
 from collections import defaultdict
 
 
 class Player:
-	def __init__(self, displayer):
-		self.displayer = displayer
+	def __init__(self):
 		self.money = 1500
 		self.position = Tile.DEPART
 		self.doubles_in_a_row = 0
@@ -27,19 +25,13 @@ class Player:
 
 	def lose(self, amount):
 		self.money -= amount
-		self.displayer.lose(amount)
 		print("\tAdd player end + real amount payed")
 		return amount
 
 	def win(self, amount):
 		self.money += amount
-		self.displayer.win(amount)
-
-	def pay(self, other, amount):
-		other.win(self.lose(amount))
 
 	def step(self, step):
-		self.displayer.step()
 		self.position += step
 		# Technically DÉPART can be elsewhere than zero
 		if self.position in (-1, Tile.TOTAL):
@@ -52,45 +44,37 @@ class Player:
 		self.doubles_in_a_row = self.doubles_in_a_row + 1 if double else 0
 		if self.doubles_in_a_row == 3:
 			self.doubles_in_a_row = 0
-			self.displayer.too_many_doubles()
 			return True
 		return False
 
 	def go_to_prison(self):
-		self.displayer.go_to_prison()
 		self.position = Tile.PRISON
 		self.turns_in_prison = 0
 
 	def use_chance_to_get_out_of_prison(self, chance_deck):
-		self.displayer.use_chance_to_get_out_of_prison()
 		self.chance_out = False
 		board.chance_deck.append(Chance.SORTIE_DE_PRISON)
 
 	def use_caisse_to_get_out_of_prison(self, caisse_deck):
-		self.displayer.use_caisse_to_get_out_of_prison()
 		self.caisse_out = False
 		board.caisse_deck.append(Caisse.SORTIE_DE_PRISON)
 
 	def pay_tax_to_get_out_of_prison(self):
-		self.displayer.pay_tax_to_get_out_of_prison()
 		self.lose(50)
 
 	def double_to_get_out_of_prison(self):
-		self.displayer.double_to_get_out_of_prison()
+		pass  # Leaving the prison is handeled in in_prison_and_stay
 
 	def leave_prison(self):
-		self.displayer.leave_prison()
 		self.position = Tile.PRISON
 		self.turns_in_prison = 0
 
 	def pay_rent(self, purchasable, double, dice1, dice2):
-		self.displayer.pay_rent(purchasable.owner.displayer, purchasable)
 		rent = purchasable.compute_rent(double, dice1, dice2)
 		payed = self.lose(rent)
 		purchasable.owner.win(payed)
 
 	def buy(self, purchasable):
-		self.displayer.buy(purchasable)
 		self.lose(purchasable.price)
 		group = type(purchasable)
 		self.wallet[group].add(purchasable)
@@ -98,6 +82,9 @@ class Player:
 		purchasable.buy_update_rent(self.wallet[group])
 
 	#############################################################
+
+	def pay(self, other, amount):
+		other.win(self.lose(amount))
 
 	def move_to(self, position, step=1):
 		assert abs(step) == 1
@@ -141,3 +128,65 @@ class Player:
 			self.pay_rent(purchasable, double, dice1, dice2)
 		elif self.buy_will(purchasable) and self.money >= purchasable.price:
 			self.buy(purchasable)
+
+
+class PlayerDebug(Player):
+	def __init__(self, name):
+		super().__init__()
+		self.name = name
+
+	def __str__(self):
+		return self.name
+
+	def sumup(self):
+		print(f"Tour de {self.name} qui a {colours.fg.yellow}{self.money}€{colours.reset}")
+		for group in self.wallet:
+			print(f"\t{group.__name__} : {", ".join(str(t) for t in self.wallet[group])}")
+
+	def lose(self, amount):
+		print(f"\t{self.name} perd {colours.fg.yellow}{amount}€{colours.reset}")
+		return super().lose(amount)
+
+	def win(self, amount):
+		print(f"\t{self.name} reçoit {colours.fg.yellow}{amount}€{colours.reset}")
+		super().win(amount)
+
+	def step(self, step):
+		print(f"{self.name} avance d'une case")
+		super().step(step)
+
+	def too_many_doubles(self, dice1, dice2):
+		prison = super().too_many_doubles(dice1, dice2)
+		if prison:
+			print(f"\t{self.name} à fait 3 doubles de suite")
+		return prison
+
+	def go_to_prison(self):
+		print(f"{colours.bg.red}{colours.fg.black}{self.name} va en Prison !{colours.reset}")
+		super().go_to_prison()
+
+	def use_chance_to_get_out_of_prison(self, chance_deck):
+		self.chance_out = False
+		board.chance_deck.append(Chance.SORTIE_DE_PRISON)
+
+	def use_caisse_to_get_out_of_prison(self, caisse_deck):
+		self.caisse_out = False
+		board.caisse_deck.append(Caisse.SORTIE_DE_PRISON)
+
+	def pay_tax_to_get_out_of_prison(self):
+		self.lose(50)
+
+	def double_to_get_out_of_prison(self):
+		print(f"{self.name} fait un double et sort")
+
+	def leave_prison(self):
+		print(f"{colours.bg.green}{colours.fg.black}{self.name} sort de Prison !{colours.reset}")
+		super().leave_prison()
+
+	def pay_rent(self, purchasable, double, dice1, dice2):
+		print(f"{self.name} est sur {str(purchasable.name)} qui appartient à {str(purchasable.owner)}")
+		super().pay_rent(purchasable, double, dice1, dice2)
+
+	def buy(self, purchasable):
+		print(f"{self.name} achète {str(purchasable.name)}")
+		super().buy(purchasable)

@@ -9,46 +9,6 @@ from collections import defaultdict
 from numpy import random
 
 
-class PlayerDebugDisplayer:
-	def __init__(self, name):
-		self.name = name
-
-	def __call__(self, player):
-		print(f"Tour de {self.name} qui a {colours.fg.yellow}{player.money}€{colours.reset}")
-		for group in player.wallet:
-			print(f"\t{group.__name__} : {", ".join(str(t) for t in player.wallet[group])}")
-
-	def lose(self, amount):
-		print(f"\t{self.name} perd {colours.fg.yellow}{amount}€{colours.reset}")
-
-	def win(self, amount):
-		print(f"\t{self.name} reçoit {colours.fg.yellow}{amount}€{colours.reset}")
-
-	def pay(self, other_displayer, amount):
-		print(f"\t{self.name} −−{colours.fg.yellow}{amount}€{colours.reset}−−> {other_displayer.name}")
-
-	def step(self):
-		print(f"{self.name} avance d'une case")
-
-	def too_many_doubles(self):
-		print(f"\t{self.name} à fait 3 doubles de suite")
-
-	def go_to_prison(self):
-		print(f"{colours.bg.red}{colours.fg.black}{self.name} va en Prison !{colours.reset}")
-
-	def leave_prison(self):
-		print(f"{colours.bg.green}{colours.fg.black}{self.name} sort de Prison !{colours.reset}")
-
-	def double_to_get_out_of_prison(self):
-		print(f"{self.name} fait un double et sort")
-
-	def pay_rent(self, owner_displayer, purchasable):
-		print(f"{self.name} est sur {str(purchasable)} qui appartient à {owner_displayer.name}")
-
-	def buy(self, purchasable):
-		print(f"{self.name} achète {str(purchasable)}")
-
-
 class Board:
 	def __init__(self, players):
 		self.players = cycle(players)
@@ -76,7 +36,6 @@ class Board:
 			player.go_to_prison()
 			return
 
-		player.displayer(player)
 		player.move_from_dice(dice1, dice2)
 
 		while True:  # Loop until player settles down on a tile
@@ -104,7 +63,7 @@ class Board:
 		# print("Add constructions")
 
 
-players = [Player(PlayerDebugDisplayer("Toto")), Player(PlayerDebugDisplayer("Tata"))]
+players = [PlayerDebug("Toto"), PlayerDebug("Tata")]
 board = Board(players)
 board.set_tiles(
 	[
@@ -153,4 +112,5 @@ board.set_tiles(
 
 for _ in range(100):
 	player = next(board.players)
+	player.sumup()
 	board.turn_of(player)
