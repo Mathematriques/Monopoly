@@ -34,17 +34,13 @@ class Tile:
 			return Tile.COMPAGNIE_D_EAU
 		return Tile.COMPAGNIE_D_ELECTRICITE
 
-	def __init__(self, displayer):
-		self.displayer = displayer
-
 
 class Prison(Tile):
 	pass
 
 
 class Tax(Tile):
-	def __init__(self, value, displayer):
-		Tile.__init__(self, displayer)
+	def __init__(self, value):
 		self.value = value
 
 	def tax_from(self, player):
@@ -52,15 +48,14 @@ class Tax(Tile):
 
 
 class Purchasable(Tile):
-	def __init__(self, price, displayer):
-		Tile.__init__(self, displayer)
+	def __init__(self, price):
 		self.price = price
 		self.owner = None
 
 
 class Station(Purchasable):
-	def __init__(self, displayer):
-		super().__init__(200, displayer)
+	def __init__(self):
+		super().__init__(200)
 
 	def buy_update_rent(self, wallet_group):
 		rent = 25 * len(wallet_group)
@@ -69,8 +64,8 @@ class Station(Purchasable):
 
 
 class Company(Purchasable):
-	def __init__(self, displayer):
-		super().__init__(150, displayer)
+	def __init__(self):
+		super().__init__(150)
 
 	def buy_update_rent(self, wallet_group):
 		monopoly = wallet_group == self.group
@@ -82,8 +77,8 @@ class Company(Purchasable):
 class Coloured(Purchasable):
 	HOTEL = 5  # Pas de crise du logement pris en compte
 
-	def __init__(self, price, construction, rents, displayer):
-		super().__init__(price, displayer)
+	def __init__(self, price, construction, rents):
+		super().__init__(price)
 		self.construction = construction
 		self.rents = rents
 
@@ -98,38 +93,6 @@ class Coloured(Purchasable):
 		self.construction += 1
 		for t in wallet_group:
 			t.compute_rent = lambda double, dice1, dice2: t.rents[t.construction]
-
-
-class Brown(Coloured):
-	pass
-
-
-class Grey(Coloured):
-	pass
-
-
-class Pink(Coloured):
-	pass
-
-
-class Orange(Coloured):
-	pass
-
-
-class Red(Coloured):
-	pass
-
-
-class Yellow(Coloured):
-	pass
-
-
-class Green(Coloured):
-	pass
-
-
-class Blue(Coloured):
-	pass
 
 
 class Chance(Tile):
@@ -150,8 +113,7 @@ class Chance(Tile):
 	COMPAGNIE_PLUS_PROCHE = 15
 	TOTAL = 16
 
-	def __init__(self, deck, displayer):
-		super().__init__(displayer)
+	def __init__(self, deck):
 		self.deck = deck
 
 	def make_deck():
@@ -163,61 +125,46 @@ class Chance(Tile):
 		card = self.deck.pop(0)  # enlève la card du sommet du deck
 
 		if card == Chance.SORTIE_DE_PRISON:
-			self.displayer.effect("Vous êtes libéré de prison.")
 			player.chance_out = True  # ajoute à la main du player
 			return False, False, False  # not prison, not moved, not doubling
 
 		self.deck.append(card)  # repose la card dans le deck
 		if card == Chance.AVANCEZ_DEPART:
-			self.displayer.effect("Avancez jusqu'à la case départ")
 			player.move_to(Tile.DEPART)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.ALLEZ_EN_PRISON:
-			self.displayer.effect("Allez en prison !")
 			player.go_to_prison()
 			return True, True, False  # prison, not moved, not doubling
 		elif card == Chance.DIVIDENDE:
-			self.displayer.effect("Recevez 50€ de dividendes")
 			player.win(50)
 		elif card == Chance.IMMEUBLE:
-			self.displayer.effect("Vos placements immobiliers vous rapportent 150€")
 			player.win(150)
 		elif card == Chance.EXCES_DE_VITESSE:
-			self.displayer.effect("Excès de vitesse : payez 15€")
 			player.lose(15)
 		elif card == Chance.PRESIDENT:
-			self.displayer.effect("Vous êtes président : payez 50€ à chaque players")
 			for j in players:
 				player.pay(j, 50)
 		elif card == Chance.REPARATION:
-			self.displayer.effect("Frais de réparations : payez 25€ par maison et 100€ par hôtel")
 			player.tax_construction(25, 100)
 		elif card == Chance.RUE_DE_LA_PAIX:
-			self.displayer.effect("Avancez rue de la Paix")
 			player.move_to(Tile.RUE_DE_LA_PAIX)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.AVANCEZ_BOULEVARD_DE_LA_VILLETTE:
-			self.displayer.effect("Avancez Boulevard de la Villette")
 			player.move_to(Tile.BOULEVARD_DE_LA_VILLETTE)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.RENDEZ_VOUS_AVENUE_HENRI_MARTIN:
-			self.displayer.effect("Rendez vous avenue Henri-Martin")
 			player.move_to(Tile.AVENUE_HENRI_MARTIN)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.ALLEZ_GARE_MONTPARNASSE:
-			self.displayer.effect("Avancez jusqu'à la gare Montparnasse")
 			player.move_to(Tile.GARE_MONTPARNASSE)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Chance.RECULEZ_DE_TROIS_CASES:
-			self.displayer.effect("Reculez de 3 cases")
 			player.move_to((player.position - 3) % Tile.TOTAL, step=-1)
 			return False, True, False  # not prison, moved, not doubling
 		elif card in Chance.GARE_PLUS_PROCHE:
-			self.displayer.effect("Allez à la gare la plus proche. Payer le loyer double")
 			player.move_to(Tile.closest_station(player.position))
 			return False, True, True  # doubling, moved
 		elif card == Chance.COMPAGNIE_PLUS_PROCHE:
-			self.displayer.effect("Allez à la compagnie la plus proche. Payer le loyer double")
 			player.move_to(Tile.closest_company(player.position))
 			return False, True, True  # doubling, moved
 		return False, False, False  # not prison, not moved, not doubling
@@ -242,8 +189,7 @@ class Caisse(Tile):
 	TRAVAUX = 15
 	TOTAL = 16
 
-	def __init__(self, deck, displayer):
-		super().__init__(displayer)
+	def __init__(self, deck):
 		self.deck = deck
 
 	def make_deck():
@@ -255,57 +201,168 @@ class Caisse(Tile):
 		card = self.deck.pop(0)  # enlève la card du sommet du deck
 
 		if card == Caisse.SORTIE_DE_PRISON:
-			self.displayer.effect("Vous êtes libéré de prison.")
 			player.caisse_out = True  # ajoute à la main du player
 			return False, False, False  # not prison, not moved, not doubling
 
 		self.deck.append(card)  # repose la card dans le deck
 		if card == Caisse.AVANCEZ_DEPART:
-			self.displayer.effect("Avancez jusqu'à la case départ")
 			player.move_to(Tile.DEPART)
 			return False, True, False  # not prison, moved, not doubling
 		elif card == Caisse.ALLEZ_EN_PRISON:
-			self.displayer.effect("Allez en prison !")
 			player.go_to_prison()
 			return True, True, False  # prison, not moved, not doubling
 		elif card == Caisse.ASSURANCE_VIE:
-			self.displayer.effect("Votre assurance vie vous rapporte 100€")
 			player.win(100)
 		elif card == Caisse.IMPOTS:
-			self.displayer.effect("Erreur des impôts en votre faveur. Recevez 20€")
 			player.win(20)
 		elif card == Caisse.PLACEMENT:
-			self.displayer.effect("Vos placement vous rapportent 100€")
 			player.win(100)
 		elif card == Caisse.HERITAGE:
-			self.displayer.effect("Vous héritez de 100€")
 			player.win(100)
 		elif card == Caisse.BANQUE:
-			self.displayer.effect("Erreur de la banque en votre faveur. Recevez 200€")
 			player.win(200)
 		elif card == Caisse.BEAUTE:
-			self.displayer.effect("Vous remportez le prix de beauté. Recevez 10€")
 			player.win(10)
 		elif card == Caisse.EXPERT:
-			self.displayer.effect("Expert ? Recevez 25€")
 			player.win(25)
 		elif card == Caisse.STOCK:
-			self.displayer.effect("Vos actions vous rapportent 50€")
 			player.win(50)
 		elif card == Caisse.HOSPITALISATION:
-			self.displayer.effect("Payez 100€ de fraix d'hospitalisation")
 			player.lose(100)
 		elif card == Caisse.MEDECIN:
-			self.displayer.effect("Payez 50€ de fraix de médecin")
 			player.lose(50)
 		elif card == Caisse.SCOLARITE:
-			self.displayer.effect("Payez 50 € de fraix de scolarité")
 			player.lose(50)
 		elif card == Caisse.ANNIVERSAIRE:
-			self.displayer.effect("C'est votre anniversaire. Recevez 10€ de la part de chaque player")
 			for j in players:
 				j.pay(player, 10)
 		elif card == Caisse.TRAVAUX:
-			self.displayer.effect("Travaux : payez 40€ par maison et 115€ par hôtel")
 			player.tax_construction(40, 115)
 		return False, False, False  # not prison, not moved, not doubling
+
+
+class TileDebug:
+	def __str__(self):
+		return self.name
+
+
+class PrisonDebug(Prison, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class TaxDebug(Tax, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class StationDebug(Station, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class CompanyDebug(Company, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class BrownDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class GreyDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class PinkDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class OrangeDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class RedDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class YellowDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class GreenDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class BlueDebug(Coloured, TileDebug):
+	def __init__(self, name, *args):
+		super().__init__(*args)
+		self.name = name
+
+
+class ChanceDebug(Chance, TileDebug):
+	def action(self, player, players):
+		print(self.deck[0])
+		effect = [
+			"Vous êtes libéré de prison.",
+			"Avancez jusqu'à la case départ",
+			"Allez en prison !",
+			"Recevez 50€ de dividendes",
+			"Vos placements immobiliers vous rapportent 150€",
+			"Excès de vitesse : payez 15€",
+			"Vous êtes président : payez 50€ à chaque players",
+			"Frais de réparations : payez 25€ par maison et 100€ par hôtel",
+			"Avancez rue de la Paix",
+			"Avancez Boulevard de la Villette",
+			"Rendez vous avenue Henri-Martin",
+			"Avancez jusqu'à la gare Montparnasse",
+			"Reculez de 3 cases",
+			"Allez à la gare la plus proche. Payer le loyer double",
+			"Allez à la gare la plus proche. Payer le loyer double",
+			"Allez à la compagnie la plus proche. Payer le loyer double",
+		][self.deck[0]]
+		print(f"\t{colours.bg.red}Chance{colours.reset} : {colours.bold}{effect}{colours.reset}")
+		return super().action(player, players)
+
+
+class CaisseDebug(Caisse, TileDebug):
+	def action(self, player, players):
+		print(self.deck[0])
+		effect = [
+			"Vous êtes libéré de prison.",
+			"Avancez jusqu'à la case départ",
+			"Allez en prison !",
+			"Votre assurance vie vous rapporte 100€",
+			"Erreur des impôts en votre faveur. Recevez 20€",
+			"Vos placement vous rapportent 100€",
+			"Vous héritez de 100€",
+			"Erreur de la banque en votre faveur. Recevez 200€",
+			"Vous remportez le prix de beauté. Recevez 10€",
+			"Expert ? Recevez 25€",
+			"Vos actions vous rapportent 50€",
+			"Payez 100€ de fraix d'hospitalisation",
+			"Payez 50€ de fraix de médecin",
+			"Payez 50 € de fraix de scolarité",
+			"C'est votre anniversaire. Recevez 10€ de la part de chaque player",
+			"Travaux : payez 40€ par maison et 115€ par hôtel",
+		][self.deck[0]]
+		print(f"\t{colours.bg.blue}Caisse{colours.reset} : {colours.bold}{effect}{colours.reset}")
+		return super().action(player, players)

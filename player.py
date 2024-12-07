@@ -84,13 +84,13 @@ class Player:
 		self.turns_in_prison = 0
 
 	def pay_rent(self, purchasable, double, dice1, dice2):
-		self.displayer.pay_rent(purchasable.owner.displayer, purchasable.displayer)
+		self.displayer.pay_rent(purchasable.owner.displayer, purchasable)
 		rent = purchasable.compute_rent(double, dice1, dice2)
 		payed = self.lose(rent)
 		purchasable.owner.win(payed)
 
 	def buy(self, purchasable):
-		self.displayer.buy(purchasable.displayer)
+		self.displayer.buy(purchasable)
 		self.lose(purchasable.price)
 		group = type(purchasable)
 		self.wallet[group].add(purchasable)
